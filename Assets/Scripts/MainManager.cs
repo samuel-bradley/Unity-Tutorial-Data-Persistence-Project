@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,8 +9,7 @@ public class MainManager : MonoBehaviour
 {
     public static MainManager instance;
     public string playerName;
-    public string highScorePlayerName;
-    public int highScore;
+    public List<HighScore> highScores;
 
     void Awake()
     {
@@ -20,28 +20,44 @@ public class MainManager : MonoBehaviour
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
-        LoadHighScore();
+        LoadHighScores();
     }
 
     [System.Serializable]
     class HighScoreData
     {
-        public string name;
-        public int score;
+        public List<HighScore> highScores;
     }
 
-    public void SaveHighScore()
+    [System.Serializable]
+    public class HighScore
+    {
+        public string name;
+        public int score;
+
+        public HighScore(string name, int score)
+        {
+            this.name = name;
+            this.score = score;
+        }
+    }
+
+    public List<HighScore> HighScoresHighToLow()
+    {
+        return highScores.OrderBy(x => x.score).Reverse().ToList();
+    }
+
+    public void SaveHighScores()
     {
         HighScoreData data = new HighScoreData();
-        data.name = highScorePlayerName;
-        data.score = highScore;
+        data.highScores = highScores;
 
         string json = JsonUtility.ToJson(data);
 
         File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
     }
 
-    public void LoadHighScore()
+    public void LoadHighScores()
     {
         string path = Application.persistentDataPath + "/savefile.json";
         if (File.Exists(path))
@@ -49,8 +65,7 @@ public class MainManager : MonoBehaviour
             string json = File.ReadAllText(path);
             HighScoreData data = JsonUtility.FromJson<HighScoreData>(json);
 
-            highScorePlayerName = data.name;
-            highScore = data.score;
+            highScores = data.highScores;
         }
     }
 }

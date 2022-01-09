@@ -9,7 +9,7 @@ public class MainUIHandler : MonoBehaviour
 
     public void ReturnToMenu()
     {
-        gameManager.UpdateHighScore();
+        gameManager.UpdateHighScores();
         SceneManager.LoadScene("menu");
     }
 }

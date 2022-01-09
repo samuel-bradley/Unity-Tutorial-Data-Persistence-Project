@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -76,7 +77,7 @@ public class GameManager : MonoBehaviour
     {
         m_Points += point;
         SetScoreText();
-        UpdateHighScore();
+        UpdateHighScores();
     }
 
     private void SetScoreText()
@@ -84,13 +85,12 @@ public class GameManager : MonoBehaviour
         ScoreText.text = $"Player: {playerName}: Score: {m_Points}";
     }
 
-    private void SetHighScoreText()
+    void SetHighScoreText()
     {
-        int highScore = MainManager.instance.highScore;
-        string highScorePlayerName = MainManager.instance.highScorePlayerName;
-        if (highScorePlayerName != "" && highScore > 0)
+        var highestScore = MainManager.instance.HighScoresHighToLow().FirstOrDefault();
+        if (highestScore != null && highestScore.name != "" && highestScore.score > 0)
         {
-            bestScoreText.text = $"Best Score: {highScorePlayerName}: Score: {highScore}";
+            bestScoreText.text = $"Best Score: {highestScore.name}: Score: {highestScore.score}";
         }
     }
 
@@ -98,15 +98,27 @@ public class GameManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
-        UpdateHighScore();
+        UpdateHighScores();
     }
 
-    public void UpdateHighScore()
+    public void UpdateHighScores()
     {
-        if (m_Points > MainManager.instance.highScore && playerName != "")
+        if (playerName != "")
         {
-            MainManager.instance.highScore = m_Points;
-            MainManager.instance.highScorePlayerName = playerName;
+            var existingPlayerScore = MainManager.instance.highScores
+                .Find(delegate (MainManager.HighScore hs) { return hs.name == playerName; });
+            if (existingPlayerScore == null)
+            {
+                MainManager.instance.highScores.Add(new MainManager.HighScore(playerName, m_Points));
+            }
+            else
+            {
+                if (m_Points > existingPlayerScore.score)
+                {
+                    existingPlayerScore.score = m_Points;
+                }
+            }
+            MainManager.instance.SaveHighScores();
             SetHighScoreText();
         }
     }

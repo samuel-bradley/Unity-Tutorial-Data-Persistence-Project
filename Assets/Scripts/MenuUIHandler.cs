@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,11 +15,15 @@ public class MenuUIHandler : MonoBehaviour
 
     void Start()
     {
-        int highScore = MainManager.instance.highScore;
-        string highScorePlayerName = MainManager.instance.highScorePlayerName;
-        if (highScore > 0 && highScorePlayerName != "")
+        SetHighScoreText();
+    }
+
+    void SetHighScoreText()
+    {
+        var highestScore = MainManager.instance.HighScoresHighToLow().FirstOrDefault();
+        if (highestScore != null && highestScore.name != "" && highestScore.score > 0)
         {
-            highScoreText.text = "Best Score: " + highScorePlayerName + ": " + highScore;
+            highScoreText.text = $"Best Score: {highestScore.name}: Score: {highestScore.score}";
         }
     }
 
@@ -28,9 +33,14 @@ public class MenuUIHandler : MonoBehaviour
         SceneManager.LoadScene("main");
     }
 
+    public void ViewHighScores()
+    {
+        SceneManager.LoadScene("highscores");
+    }
+
     public void ExitGame()
     {
-        MainManager.instance.SaveHighScore();
+        MainManager.instance.SaveHighScores();
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else

@@ -25,6 +25,8 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         playerName = MainManager.instance.playerName;
+        Paddle paddle = GameObject.Find("Paddle").GetComponent<Paddle>();
+        paddle.Speed *= 0.5f + MainManager.instance.paddleSpeedSetting;
         SetUpGame();
     }
 

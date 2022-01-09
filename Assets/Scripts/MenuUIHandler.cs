@@ -38,13 +38,18 @@ public class MenuUIHandler : MonoBehaviour
         SceneManager.LoadScene("highscores");
     }
 
+    public void GoToSettings()
+    {
+        SceneManager.LoadScene("settings");
+    }
+
     public void ExitGame()
     {
         MainManager.instance.SaveHighScores();
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else
-        Application.Quit(); // original code to quit Unity player
+        Application.Quit();
 #endif
     }
 }

@@ -8,8 +8,10 @@ using UnityEngine.UI;
 public class MainManager : MonoBehaviour
 {
     public static MainManager instance;
+
     public string playerName;
     public List<HighScore> highScores;
+    public float paddleSpeedSetting;
 
     void Awake()
     {
@@ -21,6 +23,7 @@ public class MainManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
         LoadHighScores();
+        LoadSettings();
     }
 
     [System.Serializable]
@@ -42,6 +45,11 @@ public class MainManager : MonoBehaviour
         }
     }
 
+    public class Settings
+    {
+        public float paddleSpeed;
+    }
+
     public List<HighScore> HighScoresHighToLow()
     {
         return highScores.OrderBy(x => x.score).Reverse().ToList();
@@ -54,18 +62,44 @@ public class MainManager : MonoBehaviour
 
         string json = JsonUtility.ToJson(data);
 
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
+        File.WriteAllText(Application.persistentDataPath + "/highscores.json", json);
     }
 
     public void LoadHighScores()
     {
-        string path = Application.persistentDataPath + "/savefile.json";
+        string path = Application.persistentDataPath + "/highscores.json";
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
             HighScoreData data = JsonUtility.FromJson<HighScoreData>(json);
 
             highScores = data.highScores;
+        }
+    }
+
+    public void SaveSettings()
+    {
+        Settings data = new Settings();
+        data.paddleSpeed = paddleSpeedSetting;
+
+        string json = JsonUtility.ToJson(data);
+
+        File.WriteAllText(Application.persistentDataPath + "/settings.json", json);
+    }
+
+    public void LoadSettings()
+    {
+        string path = Application.persistentDataPath + "/settings.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            Settings data = JsonUtility.FromJson<Settings>(json);
+
+            paddleSpeedSetting = data.paddleSpeed;
+        }
+        else
+        {
+            paddleSpeedSetting = 0.5f;
         }
     }
 }
